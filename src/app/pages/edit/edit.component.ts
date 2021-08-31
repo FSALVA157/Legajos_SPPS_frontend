@@ -43,7 +43,8 @@ import { CiudadModel } from '../../models/ciudad.model';
 })
 export class EditComponent implements OnInit {
   base_url:string = environment.URL_BASE;
-  
+  tituloFormPdf:string="";
+  editandoPdf: boolean=false;
   forma: FormGroup;
   formaFiliatorios: FormGroup;
   dataEdit: Personal={};
@@ -93,7 +94,7 @@ export class EditComponent implements OnInit {
     private fb: FormBuilder,
     private readonly fileUploadService: FileUploadService,
     private readonly personalService: PersonalService,
-    private readonly datePipe: DatePipe,
+    public readonly datePipe: DatePipe,
     private localeService: BsLocaleService,
     private pdfService: PdfService
   ) {
@@ -143,7 +144,7 @@ export class EditComponent implements OnInit {
 
     //creando el formulario
     this.forma = this.fb.group({
-       id_personal: [this.dataEdit.id_personal,Validators.required],
+       id_personal: [this.dataEdit.id_personal, Validators.required],
        apellido_1: [this.dataEdit.apellido_1,[Validators.required,Validators.pattern(/^[A-Za-z\s]+$/), Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
        apellido_2: [this.dataEdit.apellido_2,[Validators.pattern(/^[A-Za-z\s]+$/), Validators.minLength(2), Validators.maxLength(50)]],
        nombre_1: [this.dataEdit.nombre_1,[Validators.required,Validators.pattern(/^[A-Za-z\s]+$/), Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -788,6 +789,7 @@ export class EditComponent implements OnInit {
 
   //manejo de tabla de registros de pdfs
   crearRegistro(){
+    this.tituloFormPdf="Nuevo Registro Pdf"
     this.newFileDialog = true;
   }
   
@@ -800,31 +802,69 @@ export class EditComponent implements OnInit {
     this.newFileDialog = false
   }  
 
+
+
   onUploadPdf(event: File){
-    try {
-      this.submitted = true;
-      this.pdfSubir = event;
+    this.submitted = true;
+    if(this.editandoPdf){
       let legajo: number =  this.dataEdit.legajo! ;
-      let detalle: string =  this.regPdf.detalle! ;
-      let fecha_pdf: Date =  this.regPdf.fecha_documento! ;
-      let indice: number =  this.regPdf.indice! ;
-      this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then(respuesta => {
-         if(respuesta.ok){
-          Swal.fire('Carga Exitosa!!', "El pdf del legajo digital ha sido subido  con éxito","success");
-          this.listarPdfs(legajo);    
-          this.submitted = false;
-          this.newFileDialog = false;
-          this.regPdf = new PdfModel();
-             }else{
-                 throw new Error(respuesta.message);
-         }
-     }).catch(error => {
-      Swal.fire('Error', error.message, "error"); 
-     });
-     
+                       
+      if(this.regPdf.id_archivo){
+        let data: Partial<PdfModel>;
+        data = {
+            detalle: this.regPdf.detalle,
+            indice: this.regPdf.indice,
+            fecha_documento: this.changeFormatoFechaGuardar(this.regPdf.fecha_documento!)
+        }
+                          
+        this.pdfService.editPdf(this.regPdf.id_archivo, data)
+            .subscribe(
+              resultado => {
+                Swal.fire('Exito',`El pdf del legajo digital ha sido editado con éxito`,"success");
+                // this.actualizarUsuarios();
+                // this.hideDialog();
+                this.listarPdfs(legajo);    
+                this.submitted = false;
+                this.newFileDialog = false;
+                this.regPdf = new PdfModel();
+              },
+              error => {
+                  
+                  Swal.fire('Error',`Error al Editar el Usuario ${error.error.message}`,"error")                          
+              });
+      }else{
       
-    } catch (error) {
-          Swal.fire('Error', error.message, "error");    
+              Swal.fire('Error',`Error al Editar el Usuario: Faltan Datos`,"error")
+              
+      }
+
+    }else{
+      try {
+        
+        this.pdfSubir = event;
+        let legajo: number =  this.dataEdit.legajo! ;
+        let detalle: string =  this.regPdf.detalle! ;
+        // let fecha_pdf: Date =  this.regPdf.fecha_documento! ;
+        let fecha_pdf: Date =  this.changeFormatoFechaGuardar(this.regPdf.fecha_documento!) ;
+        let indice: number =  this.regPdf.indice! ;
+        this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then(respuesta => {
+          if(respuesta.ok){
+            Swal.fire('Carga Exitosa!!', "El pdf del legajo digital ha sido subido  con éxito","success");
+            this.listarPdfs(legajo);    
+            this.submitted = false;
+            this.newFileDialog = false;
+            this.regPdf = new PdfModel();
+          }else{
+            throw new Error(respuesta.message);
+          }
+       }).catch(error => {
+        Swal.fire('Error', error.message, "error"); 
+       });
+       
+        
+      } catch (error) {
+            Swal.fire('Error', error.message, "error");    
+      }
     }
   }
 
@@ -837,7 +877,16 @@ listarPdfs(numLegajo: number){
 }
 
 editRegPdf(pdf: PdfModel){
-
+  if(pdf.fecha_documento != null){
+    //debe ser MM-dd-yyyy porque el tipo Date recibe ese formato... con dd-MM-yyyy intercambia mes con dia
+    let auxiliar = this.datePipe.transform(pdf.fecha_documento, "MM-dd-yyyy");
+    pdf.fecha_documento = new Date(auxiliar!);
+         
+  }
+  this.tituloFormPdf="Editar Registro Pdf"
+  this.editandoPdf = true;
+  this.regPdf = {...pdf};
+  this.newFileDialog = true;
 }
 
 deletePdf(pdf: PdfModel){

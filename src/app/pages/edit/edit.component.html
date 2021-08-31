@@ -841,7 +841,8 @@
                                                                 </td>
                                                                 <td>
                                                                     <!-- <span class="p-column-title">Nombre 3</span>  -->
-                                                                    {{pdf.fecha_documento}}
+                                                                    <!-- {{pdf.fecha_documento}}  -->
+                                                                    {{(pdf.fecha_documento!=null)?this.datePipe.transform(pdf.fecha_documento, "dd/MM/yyyy"):''}}
                                                                 </td>
                                                                 <td>
                                                                     <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="editRegPdf(pdf)"></button>
@@ -860,7 +861,7 @@
                                                 </div>
 
                                                 <!-- Dialogo Modal: Formulario de Carga de Nuevo Pdf -->
-                                                <p-dialog [(visible)]="newFileDialog" [style]="{width: '450px'}" header="Nuevo Registro Pdf" [modal]="true" styleClass="p-fluid">
+                                                <p-dialog [(visible)]="newFileDialog" [style]="{width: '450px'}" header={{this.tituloFormPdf}} [modal]="true" styleClass="p-fluid">
                                                     <ng-template pTemplate="content">
                                                         <!-- <img [src]="'assets/showcase/images/demo/product/' + product.image" [alt]="product.image" class="product-image" *ngIf="product.image"> -->
 
@@ -903,7 +904,8 @@
                                                                     <div class="p-field p-grid">
                                                                         <label class="p-col-2 p-mb-2 p-mb-md-0" for="fecha">Fecha del Pdf</label>
                                                                         <div class="p-col-12 p-md-10">
-                                                                            <input type="text" pInputText id="fecha" [(ngModel)]="regPdf.fecha_documento" required />
+                                                                            <!-- <input type="text" pInputText id="fecha" [(ngModel)]="regPdf.fecha_documento" required /> -->
+                                                                            <input type="text" pInputText bsDatepicker [bsConfig]=bsDatePickerConfig (bsValueChange)="onDateChange($event)" id="fecha" [(ngModel)]="regPdf.fecha_documento">
                                                                             <small class="p-error" *ngIf="submitted && !regPdf.fecha_documento">La Fecha es requerida!</small>
                                                                         </div>
                                                                     </div>
