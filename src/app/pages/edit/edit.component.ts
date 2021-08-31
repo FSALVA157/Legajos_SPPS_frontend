@@ -799,12 +799,26 @@ export class EditComponent implements OnInit {
   }
   
   ocultarDialogo(){
-    this.newFileDialog = false
+    this.editandoPdf = false;
+    this.regPdf = new PdfModel();
+    this.newFileDialog = false;
   }  
 
+  editRegPdf(pdf: PdfModel){
+    if(pdf.fecha_documento != null){
+      //debe ser MM-dd-yyyy porque el tipo Date recibe ese formato... con dd-MM-yyyy intercambia mes con dia
+      let auxiliar = this.datePipe.transform(pdf.fecha_documento, "MM-dd-yyyy");
+      pdf.fecha_documento = new Date(auxiliar!);
+           
+    }
+    this.tituloFormPdf="Editar Registro Pdf"
+    this.editandoPdf = true;
+    this.regPdf = {...pdf};
+    this.newFileDialog = true;
+  }
 
 
-  onUploadPdf(event: File){
+  onEditPdf(){
     this.submitted = true;
     if(this.editandoPdf){
       let legajo: number =  this.dataEdit.legajo! ;
@@ -825,8 +839,8 @@ export class EditComponent implements OnInit {
                 // this.hideDialog();
                 this.listarPdfs(legajo);    
                 this.submitted = false;
-                this.newFileDialog = false;
-                this.regPdf = new PdfModel();
+                this.ocultarDialogo();
+                
               },
               error => {
                   
@@ -838,34 +852,38 @@ export class EditComponent implements OnInit {
               
       }
 
-    }else{
-      try {
-        
-        this.pdfSubir = event;
-        let legajo: number =  this.dataEdit.legajo! ;
-        let detalle: string =  this.regPdf.detalle! ;
-        // let fecha_pdf: Date =  this.regPdf.fecha_documento! ;
-        let fecha_pdf: Date =  this.changeFormatoFechaGuardar(this.regPdf.fecha_documento!) ;
-        let indice: number =  this.regPdf.indice! ;
-        this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then(respuesta => {
-          if(respuesta.ok){
-            Swal.fire('Carga Exitosa!!', "El pdf del legajo digital ha sido subido  con éxito","success");
-            this.listarPdfs(legajo);    
-            this.submitted = false;
-            this.newFileDialog = false;
-            this.regPdf = new PdfModel();
-          }else{
-            throw new Error(respuesta.message);
-          }
-       }).catch(error => {
-        Swal.fire('Error', error.message, "error"); 
-       });
-       
-        
-      } catch (error) {
-            Swal.fire('Error', error.message, "error");    
-      }
     }
+  }
+
+  onUploadPdf(event: File){
+    this.submitted = true;    
+    try {
+      
+      this.pdfSubir = event;
+      let legajo: number =  this.dataEdit.legajo! ;
+      let detalle: string =  this.regPdf.detalle! ;
+      // let fecha_pdf: Date =  this.regPdf.fecha_documento! ;
+      let fecha_pdf: Date =  this.changeFormatoFechaGuardar(this.regPdf.fecha_documento!) ;
+      let indice: number =  this.regPdf.indice! ;
+      this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then(respuesta => {
+        if(respuesta.ok){
+          Swal.fire('Carga Exitosa!!', "El pdf del legajo digital ha sido subido  con éxito","success");
+          this.listarPdfs(legajo);    
+          this.submitted = false;
+          this.ocultarDialogo();
+          
+        }else{
+          throw new Error(respuesta.message);
+        }
+      }).catch(error => {
+      Swal.fire('Error', error.message, "error"); 
+      });
+      
+      
+    } catch (error) {
+          Swal.fire('Error', error.message, "error");    
+    }
+    
   }
 
 listarPdfs(numLegajo: number){
@@ -876,18 +894,7 @@ listarPdfs(numLegajo: number){
      
 }
 
-editRegPdf(pdf: PdfModel){
-  if(pdf.fecha_documento != null){
-    //debe ser MM-dd-yyyy porque el tipo Date recibe ese formato... con dd-MM-yyyy intercambia mes con dia
-    let auxiliar = this.datePipe.transform(pdf.fecha_documento, "MM-dd-yyyy");
-    pdf.fecha_documento = new Date(auxiliar!);
-         
-  }
-  this.tituloFormPdf="Editar Registro Pdf"
-  this.editandoPdf = true;
-  this.regPdf = {...pdf};
-  this.newFileDialog = true;
-}
+
 
 deletePdf(pdf: PdfModel){
     const idPdf: number = parseInt(pdf.id_archivo.toString());
