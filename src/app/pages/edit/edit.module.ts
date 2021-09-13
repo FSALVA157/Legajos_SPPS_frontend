@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import {DatePipe} from '@angular/common';
 import { FileSaverModule } from 'ngx-filesaver';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { FileSaverModule } from 'ngx-filesaver';
     PipesModule,
     BsDatepickerModule.forRoot(),
     BrowserAnimationsModule,
-    FileSaverModule
+    FileSaverModule,
+    ProgressSpinnerModule
   ],
   exports: [
     FormsModule,

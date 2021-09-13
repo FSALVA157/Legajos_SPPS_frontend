@@ -4,6 +4,7 @@ import { UsuariosComponent } from './usuarios/usuarios.component';
 import { ngPrimeModule } from '../../ngprime.module';
 import { FormsModule } from '@angular/forms';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import { PipesModule } from 'src/app/pipes/pipes.module';
 
 
 @NgModule({
@@ -14,10 +15,12 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
     CommonModule,
     ngPrimeModule,
     FormsModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    PipesModule
   ],
   exports: [
-    UsuariosComponent
+    UsuariosComponent,
+    PipesModule
   ]
 })
 export class UsuariosModule { }

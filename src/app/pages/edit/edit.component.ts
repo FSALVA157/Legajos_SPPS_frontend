@@ -61,6 +61,7 @@ export class EditComponent implements OnInit {
   regPdf: Partial<PdfModel> = new PdfModel();
   submitted: boolean = false;
   baseUrlPdf: string = `${this.base_url}/archivo/pdf`;
+  cargando: boolean = true;
 
   //manejo de forumulario de personal
   departamentos: DepartamentoModel[]=[];
