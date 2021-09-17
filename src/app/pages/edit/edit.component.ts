@@ -239,8 +239,8 @@ export class EditComponent implements OnInit {
   //   await  this.pdfService.getPdf(url).then();   
   // }
 
-  descargarPdf(id: number){
-    this.pdfService.getPDF(id)
+  descargarPdf(key: string){
+    this.pdfService.getPDF(key)
     .subscribe(
       (data: Blob) => {
         var file = new Blob([data], { type: 'application/pdf' })
@@ -681,7 +681,7 @@ export class EditComponent implements OnInit {
       console.log('DATA DEL ARCHIVO', event);
       this.fotoSubir = event;
       let id: number =  this.dataEdit.id_personal! ;
-      this.fileUploadService.actualizarFotoPersonal(this.fotoSubir, id).then(respuesta => {
+      this.fileUploadService.actualizarFotoPersonal(this.fotoSubir, id).then((respuesta:any) => {
         if(respuesta.ok){
           Swal.fire('Actualización Exitosa!!', "La foto del Usuario ha sido cambiada con éxito","success");
         }else{
@@ -691,7 +691,7 @@ export class EditComponent implements OnInit {
         Swal.fire('Error', error.message, "error"); 
       });
         
-    } catch (error) {
+    } catch (error: any) {
         
       Swal.fire('Error', error.message, "error");    
     }
@@ -866,7 +866,7 @@ export class EditComponent implements OnInit {
       // let fecha_pdf: Date =  this.regPdf.fecha_documento! ;
       let fecha_pdf: Date =  this.changeFormatoFechaGuardar(this.regPdf.fecha_documento!) ;
       let indice: number =  this.regPdf.indice! ;
-      this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then(respuesta => {
+      this.pdfService.postPdf(this.pdfSubir, legajo, detalle, fecha_pdf, indice).then((respuesta: any) => {
         if(respuesta.ok){
           Swal.fire('Carga Exitosa!!', "El pdf del legajo digital ha sido subido  con éxito","success");
           this.listarPdfs(legajo);    
@@ -881,7 +881,7 @@ export class EditComponent implements OnInit {
       });
       
       
-    } catch (error) {
+    } catch (error: any) {
           Swal.fire('Error', error.message, "error");    
     }
     
